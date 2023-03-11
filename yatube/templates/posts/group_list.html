@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block title %}
+{{title}}
+{% endblock %}
+{% block content %}
+<!-- класс py-5 создает отступы сверху и снизу блока -->
+<div class="container py-5">
+  <h1>{{ group.title }}</h1>
+  <p>{{ group.description }}</p>
+  {% for post in page_obj %}
+    {% include "includes/posts_rendering.html" %}
+  {% endfor %}
+  {% include 'posts/includes/paginator.html' %}
+</div>
+{% endblock %}
