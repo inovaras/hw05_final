@@ -1,9 +1,10 @@
 from django.db import models
+from django.db.models import F, Q, CheckConstraint, UniqueConstraint
 from django.contrib.auth import get_user_model
 
+from .consts import POST_TRUNCATE_NUMBER
 
 User = get_user_model()
-POST_TRUNCATE_NUMBER = 15
 
 
 class Group(models.Model):
@@ -81,3 +82,9 @@ class Follow(models.Model):
         related_name='following',
         verbose_name='Автор',
     )
+
+    class Meta:
+        constraints = [
+            CheckConstraint(name='not_same', check=~Q(user=F('author'))),
+            UniqueConstraint(fields=['user', 'author'], name='unique_pair'),
+        ]

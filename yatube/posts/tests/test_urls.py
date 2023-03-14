@@ -26,7 +26,11 @@ class PostURLTests(TestCase):
             f'/profile/{cls.user.username}/': 'all',
             f'/posts/{cls.post.id}/': 'all',
             '/create/': 'authorized',
+            '/follow/': 'authorized',
             f'/posts/{cls.post.id}/edit/': 'author',
+            f'/profile/{cls.user.username}/follow/': 'authorized',
+            f'/profile/{cls.user.username}/unfollow/': 'authorized',
+            f'/posts/{cls.post.id}/comment/': 'authorized',
         }
         cls.template_url_name = {
             f'/group/{cls.group.slug}/': 'posts/group_list.html',
@@ -34,6 +38,10 @@ class PostURLTests(TestCase):
             f'/posts/{cls.post.id}/': 'posts/post_detail.html',
             '/create/': 'posts/create.html',
             f'/posts/{cls.post.id}/edit/': 'posts/create.html',
+            '/follow/': 'posts/follow.html',
+            f'/profile/{cls.user.username}/follow/': 'posts/profile.html',
+            f'/profile/{cls.user.username}/unfollow/': 'posts/profile.html',
+            f'/posts/{cls.post.id}/comment/': 'posts/post_detail.html',
         }
 
     def setUp(self):
@@ -49,7 +57,7 @@ class PostURLTests(TestCase):
 
         for address, template in self.template_url_name.items():
             with self.subTest(address=address):
-                response = self.author_client.get(address)
+                response = self.author_client.get(address, follow=True)
                 self.assertTemplateUsed(response, template)
 
     def test_url_access_for_authorized_only(self):
@@ -60,7 +68,7 @@ class PostURLTests(TestCase):
         ) in self.access_url_address_map.items():
             if access == 'authorized':
                 with self.subTest(address=address):
-                    response = self.authorized_client.get(address)
+                    response = self.authorized_client.get(address, follow=True)
                     self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_url_access_for_all(self):
@@ -71,7 +79,7 @@ class PostURLTests(TestCase):
         ) in self.access_url_address_map.items():
             if access == 'all':
                 with self.subTest(address=address):
-                    response = self.guest_client.get(address)
+                    response = self.guest_client.get(address, follow=True)
                     self.assertEqual(response.status_code, HTTPStatus.OK)
 
     def test_url_access_for_author_only(self):
@@ -82,5 +90,5 @@ class PostURLTests(TestCase):
         ) in self.access_url_address_map.items():
             if access == 'author':
                 with self.subTest(address=address):
-                    response = self.author_client.get(address)
+                    response = self.author_client.get(address, follow=True)
                     self.assertEqual(response.status_code, HTTPStatus.OK)
